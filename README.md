@@ -142,7 +142,7 @@ task-and-team-management-platform/
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/task-management-platform.git
+git clone https://github.com/paurnimanehete/task-management-platform.git
 cd task-management-platform
 
 # Install all dependencies
@@ -370,11 +370,16 @@ Tests cover: health check, register, login, duplicate prevention, invalid inputs
 
 ---
 
-## 🔐 Test Account
+## 🔐 Pre-seeded Test Credentials
 
-After running locally, register any account via:
-- **URL:** http://localhost:5173/register
-- No pre-seeded accounts (registration is open)
+For evaluation, the following pre-seeded test accounts are available and active in the database:
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Standard User** | `testuser@example.com` | `Test@1234` |
+| **Admin User** | `admin@example.com` | `Admin@1234` |
+
+> ℹ️ Registration is also fully open at `/register` if you'd like to create custom accounts.
 
 ---
 
