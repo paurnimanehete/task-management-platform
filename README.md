@@ -8,8 +8,8 @@ A full-stack, production-ready **Task & Team Management Platform** built with th
 
 | Environment | URL |
 |-------------|-----|
-| **Frontend** | `[Your Vercel URL — fill in after deployment]` |
-| **Backend API** | `[Your Render URL — fill in after deployment]` |
+| **Frontend** | https://task-management-platform-one.vercel.app/|
+| **Backend API** | https://task-management-platform-ifsc.onrender.com |
 
 ---
 

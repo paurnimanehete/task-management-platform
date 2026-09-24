@@ -1,14 +1,30 @@
 import axios from 'axios';
 
-// Base API URL configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Base API URL configuration with normalization
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    const cleaned = envUrl.trim().replace(/\/$/, '');
+    return cleaned.endsWith('/api') ? cleaned : `${cleaned}/api`;
+  }
+  
+  // If deployed on Vercel or any non-localhost domain, fallback to live Render backend
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return 'https://task-management-platform-ifsc.onrender.com/api';
+  }
+
+  // Local development fallback
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 60000, // 60s timeout to tolerate Render free-tier cold starts
 });
 
 // Request Interceptor: Attach JWT Token
@@ -32,7 +48,7 @@ api.interceptors.response.use(
   (error) => {
     // Handle 401 Unauthorized (expired or invalid token)
     if (error.response && error.response.status === 401) {
-      const isAuthRoute = error.config.url.includes('/auth/login') || error.config.url.includes('/auth/register');
+      const isAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
       if (!isAuthRoute) {
         localStorage.removeItem('token');
         sessionStorage.removeItem('token');
@@ -46,11 +62,18 @@ api.interceptors.response.use(
       }
     }
 
-    // Format error message for consumers
-    const customMessage =
-      error.response?.data?.message ||
-      error.message ||
-      'An unexpected error occurred. Please try again.';
+    // Friendly message for timeout / cold start errors
+    let customMessage = error.response?.data?.message;
+
+    if (!customMessage) {
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        customMessage = 'Server response timed out. The backend on Render may be waking up from sleep — please try again in a few seconds.';
+      } else if (error.message === 'Network Error') {
+        customMessage = 'Unable to connect to backend server. Please check your internet connection or server CORS settings.';
+      } else {
+        customMessage = error.message || 'An unexpected error occurred. Please try again.';
+      }
+    }
 
     return Promise.reject(new Error(customMessage));
   }

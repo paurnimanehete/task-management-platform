@@ -17,23 +17,33 @@ const app = express();
 connectDB();
 
 // CORS configuration
-const allowedOrigins = [
+const rawOrigins = [
   process.env.CLIENT_URL,
+  'https://task-management-platform-one.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
 ].filter(Boolean);
 
+// Normalize origins by stripping trailing slashes
+const allowedOrigins = rawOrigins.map((url) => url.replace(/\/$/, ''));
+
 app.use(
   cors({
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps, curl, postman)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      const cleanOrigin = origin.replace(/\/$/, '');
+      const isAllowed =
+        allowedOrigins.includes(cleanOrigin) ||
+        cleanOrigin.endsWith('.vercel.app') ||
+        process.env.NODE_ENV !== 'production';
+
+      if (isAllowed) {
         return callback(null, true);
       }
-      return callback(new Error('CORS policy: Not allowed by Access-Control-Allow-Origin'));
+      return callback(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
