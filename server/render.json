@@ -1,0 +1,14 @@
+{
+  "name": "render deployment",
+  "build_command": "npm install",
+  "start_command": "npm start",
+  "root_dir": "server",
+  "env_vars": [
+    "NODE_ENV=production",
+    "MONGODB_URI=<your_mongodb_atlas_uri>",
+    "JWT_SECRET=<your_strong_secret>",
+    "JWT_EXPIRE=7d",
+    "JWT_REMEMBER_EXPIRE=30d",
+    "CLIENT_URL=<your_vercel_frontend_url>"
+  ]
+}
